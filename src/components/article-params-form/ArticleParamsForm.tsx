@@ -1,10 +1,17 @@
 import { ArrowButton } from 'src/ui/arrow-button';
 import { Button } from 'src/ui/button';
 import { Text } from 'src/ui/text';
-import { OptionType } from 'src/constants/articleProps';
+import {
+	OptionType,
+	backgroundColors,
+	contentWidthArr,
+	defaultArticleState,
+	fontColors,
+	fontFamilyOptions,
+	fontSizeOptions,
+} from 'src/constants/articleProps';
 import { Select } from 'src/ui/select';
 import clsx from 'clsx';
-
 import styles from './ArticleParamsForm.module.scss';
 import { useState, useRef } from 'react';
 import { RadioGroup } from 'src/ui/radio-group';
@@ -20,48 +27,38 @@ type ArticleState = {
 };
 
 interface FormProps {
-	fontFamilyOptions: OptionType[];
-	fontSizeOptions: OptionType[];
-	fontColors: OptionType[];
-	backgroundColors: OptionType[];
-	contentWidthArr: OptionType[];
-	defaultArticleState: ArticleState;
+	currentArticleState: ArticleState;
 	setArticleState: React.Dispatch<React.SetStateAction<ArticleState>>;
 }
 
 export const ArticleParamsForm = ({
-	fontFamilyOptions,
-	fontSizeOptions,
-	fontColors,
-	backgroundColors,
-	contentWidthArr,
-	defaultArticleState,
+	currentArticleState,
 	setArticleState,
 }: FormProps) => {
-	const [isOpen, setOpen] = useState(false);
+	const [isFormOpen, setOpen] = useState(false);
 	const toggleOpen = () => {
-		setOpen(!isOpen);
+		setOpen(!isFormOpen);
 	};
 	const refForClicks = useRef<HTMLDivElement | null>(null);
 	useOutsideClickClose({
-		isOpen: isOpen,
+		isOpen: isFormOpen,
 		rootRef: refForClicks,
 		onChange: setOpen,
 	});
 	const [fontFamilyOption, setFontFamily] = useState<OptionType>(
-		defaultArticleState.fontFamilyOption
+		currentArticleState.fontFamilyOption
 	);
 	const [fontSizeOption, setFontSize] = useState<OptionType>(
-		defaultArticleState.fontSizeOption
+		currentArticleState.fontSizeOption
 	);
 	const [fontColorOption, setFontColor] = useState<OptionType>(
-		defaultArticleState.fontColor
+		currentArticleState.fontColor
 	);
 	const [bgColorOption, setBgColor] = useState<OptionType>(
-		defaultArticleState.backgroundColor
+		currentArticleState.backgroundColor
 	);
 	const [contentWidthOption, setContentWidth] = useState<OptionType>(
-		defaultArticleState.contentWidth
+		currentArticleState.contentWidth
 	);
 	const resetForm = (defaultValues: ArticleState): void => {
 		setFontFamily(defaultValues.fontFamilyOption);
@@ -72,7 +69,8 @@ export const ArticleParamsForm = ({
 	};
 	const handleSubmit = (e: React.FormEvent) => {
 		e.preventDefault();
-		setArticleState((prev) => ({...prev,
+		setArticleState((prev) => ({
+			...prev,
 			fontFamilyOption: fontFamilyOption,
 			fontColor: fontColorOption,
 			backgroundColor: bgColorOption,
@@ -87,14 +85,19 @@ export const ArticleParamsForm = ({
 	return (
 		<div ref={refForClicks}>
 			<ArrowButton
-				isOpen={isOpen}
+				isOpen={isFormOpen}
 				onClick={() => {
 					toggleOpen();
 				}}
 			/>
 			<aside
-				className={clsx(styles.container, { [styles.container_open]: isOpen })}>
-				<form className={styles.form} onSubmit={handleSubmit}>
+				className={clsx(styles.container, {
+					[styles.container_open]: isFormOpen,
+				})}>
+				<form
+					className={styles.form}
+					onSubmit={handleSubmit}
+					onReset={handleReset}>
 					<Text as='h2' size={31} weight={800} uppercase dynamicLite>
 						{' '}
 						Задайте параметры{' '}
@@ -141,14 +144,7 @@ export const ArticleParamsForm = ({
 							}}></Select>
 					</div>
 					<div className={styles.bottomContainer}>
-						<Button
-							title='Сбросить'
-							htmlType='reset'
-							type='clear'
-							onClick={() => {
-								handleReset();
-							}}
-						/>
+						<Button title='Сбросить' htmlType='reset' type='clear' />
 						<Button title='Применить' htmlType='submit' type='apply' />
 					</div>
 				</form>
